@@ -1,4 +1,4 @@
-import * from util # in directory
+import * from util # in package
 import logging as log
 
 log.basicConfig(level=logging.INFO) # warning when finished
@@ -108,9 +108,13 @@ def assets_file_info(file_handler):
 
 	return header, metadata, entries
 
-def assets_entry(file_handler, entry):
+def assets_entry(file_handler, entry, duplicate=False): # duplicate option added for error recovery
 	type_id = entry['type_id']
-	data = read_chunk(entry['offset'], entry['size'], file_handler)
+	if duplicate:
+		data = read_chunk(entry['offset'], entry['size'], file_handler)
+	else:
+		file_handler.seek(entry['offset'])
+		data = file_handler
 	node = {}
 
 	# In lieu of a switch statement
@@ -118,7 +122,7 @@ def assets_entry(file_handler, entry):
 	if type_id in (28, 213):
 		node['image_name'] = read_string(data)
 		align(4, data)
-		log.info('%s, %i', node['image_name'], type_id)
+		log.info('%s, id %i', node['image_name'], type_id)
 
 		if type_id == 28:
             node['x_res']      = read_int(data)
@@ -134,3 +138,4 @@ def assets_entry(file_handler, entry):
             log.info('image format: %i', img_format)
             log.debug('entry data node: %s', node)
 
+    return node

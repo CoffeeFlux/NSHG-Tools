@@ -3,7 +3,7 @@
 import argparse
 import * from nshg
 
-# Initialization
+# Config
 
 # Commented out for testing
 '''
@@ -30,4 +30,5 @@ args.files = r'Q:\Ryan\Documents\Unity\TestProject\testproject_Data'
 #args.files = r'Q:\Games\NSHG_v111\NewSuperHookGirl_Data'
 
 # Body
+
 
