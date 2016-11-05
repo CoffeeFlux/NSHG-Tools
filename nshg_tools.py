@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 
 import argparse
-from nshg import *
+import * from nshg
 
 # Initialization
 
 # Commented out for testing
 '''
-praser = argparse.ArgumentParser(description='transform Unity assets')
-parser.add_argument('file_type', help='type of file to act upon', 
+argparser = argparse.ArgumentParser(description='transform Unity assets')
+argparser.add_argument('file_type', help='type of file to act upon', 
 	                choices=['assets','level'])
-parser.add_argument('command', help='action to perform on the files', 
+argparser.add_argument('command', help='action to perform on the files', 
 	                choices=['blocks', 'header', 'objectids', 'types', 'unpack', 'pack'])
-parser.add_argument('files', metavar='FILE', nargs='+', help='list of files and/or directories to act upon')
-parser.add_argument(['-d', '--dest-dir'], dest='dest_dir', help='directory to unpack/pack to')
+argparser.add_argument('files', metavar='FILE', nargs='+', help='list of files and/or directories to act upon')
+argparser.add_argument(['-d', '--dest-dir'], dest='dest_dir', help='directory to unpack/pack to')
 
-args = parser.parse_args()
+args = argparser.parse_args()
 '''
 # For testing purposes
 

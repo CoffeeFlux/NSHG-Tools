@@ -1,15 +1,20 @@
-import struct
+import struct, io, errno, collections
 
-def format_hex(s):
+def format_hex(s): # yes, this is bad; i'll remove it later
 	return '0x' + format(s, '02x').upper().zfill(8)
 
 def read(format, length, file_handler):
 	return struct.unpack(format, file_handler.read(length))[0]
 
+# Shorthand read functions are assumed to be little-endian, unsigned
 def read_int(file_handler):
 	return read('<I', 4, file_handler)
 
-def read_byte(file_handler)
+def read_byte(file_handler):
+	return read('<B', 1, file_handler)
+
+def read_bool(file_handler):
+	return read('<?', 1, file_handler)
 
 def read_until_null(file_handler):
 	raw = bytearray()
@@ -24,7 +29,7 @@ def read_null_term_string(file_handler):
 
 def read_string(file_handler):
 	length = read_int(file_handler)
-	return data.read(length).decode('utf-8')
+	return file_handler.read(length).decode('utf-8')
 
 def read_chunk(offset, size, file_handler, reset_pos=True):
 	initial_pos = file_handler.tell()
@@ -35,7 +40,7 @@ def read_chunk(offset, size, file_handler, reset_pos=True):
 	return io.BytesIO(raw)
 
 def align(n, file_handler):
-	while file_handler.tell() % ne:
+	while file_handler.tell() % n:
 		file_handler.read(1)
 
 def pad(n, file_handler):
