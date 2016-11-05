@@ -1,4 +1,4 @@
-import struct, io, errno, collections
+import struct, io, errno
 
 def format_hex(s): # yes, this is bad; i'll remove it later
 	return '0x' + format(s, '02x').upper().zfill(8)
@@ -48,25 +48,6 @@ def pad(n, file_handler):
 
 def get_pos(file_handler):
 	return format_hex(file_handler.tell())
-
-def img_data_to_list(data, x_res, y_res, alpha=False, reverse=False):
-	data = io.BytesIO(data)
-	output = collections.deque()
-	for y in range(0, y_res):
-		row = []
-		for x in range(0, x_res):
-			if alpha:
-				a = read_byte(data)     # A
-			row.append(read_byte(data)) # R
-			row.append(read_byte(data)) # G
-			row.append(read_byte(data)) # B
-			if alpha:
-				row.append(a)
-		if reverse:
-			output.appendleft(row)
-		else:
-			output.append(row)
-	return list(output)
 
 def ensure_path_exists(path):
 	try:
