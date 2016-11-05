@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import argparse
+import argparse, os
+import logging as log
 import * from nshg
 
 # Config
@@ -26,9 +27,17 @@ args.file_type = 'assets'
 
 args.command = 'header'
 
-args.files = r'Q:\Ryan\Documents\Unity\TestProject\testproject_Data'
-#args.files = r'Q:\Games\NSHG_v111\NewSuperHookGirl_Data'
+args.files = [r'Q:\Ryan\Documents\Unity\TestProject\testproject_Data\sharedassets0.assets']
+#args.files = [r'Q:\Games\NSHG_v111\NewSuperHookGirl_Data\sharedassets0.assets']
 
 # Body
 
+def process_file(filename):
+	# shit
 
+for name in args.files:
+	is_file = os.path.isfile(name)
+	is_dir = os.path.isdir(name)
+	if not (is_file or is_dir):
+		log.warn('%s does not exist; skipping', name)
+	elif is_file
