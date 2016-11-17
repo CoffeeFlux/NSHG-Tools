@@ -1,15 +1,13 @@
 import * from util # in package
 import logging as log
 
-log.basicConfig(level=logging.INFO) # warning when finished
-
 def assets_file_info(file_handler):
 	f = file_handler
 
 	# Header - Dict
 	header = {}
 	header['metadata_size'] = read('>I', 4, f)
-	header['file size']     = read('>I', 4, f)
+	header['file_size']     = read('>I', 4, f)
 	header['version']       = read('>I', 4, f)
 	header['data_offset']   = read('>I', 4, f)
 	header['endianness']    = read('>?', 1, f)
@@ -105,6 +103,7 @@ def assets_file_info(file_handler):
 	    entry['size'] = info['size']
 	    entry['type_id'] = info['type_id'] # make sure this is possible/useful, consider actual type root
 	    entries.append(entry)
+	log.debug('entries: %s', entries)
 
 	return header, metadata, entries
 
@@ -136,6 +135,7 @@ def assets_entry(file_handler, entry, duplicate=False): # duplicate option added
             node['ress_name']  = read_str(data)
             align(4, data)
             log.info('image format: %i', img_format)
-            log.debug('entry data node: %s', node)
+    
+    log.debug('entry data node: %s', node)
 
     return node
