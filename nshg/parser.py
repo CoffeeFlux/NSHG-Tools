@@ -99,15 +99,15 @@ def assets_file_info(file_handler):
 	entries = []
 	for path_id, info in obj_info.items():
 	    entry = {}
-	    entry['offset'] = header['data_offset'] + info['offset']
-	    entry['size'] = info['size']
-	    entry['type_id'] = info['type_id'] # make sure this is possible/useful, consider actual type root
+	    entry['offset'] = header['data_offset'] + metadata['obj_info']['offset']
+	    entry['size'] = metadata['obj_info']['size']
+	    entry['type_id'] = metadata['obj_info']['type_id'] # make sure this is possible/useful, consider actual type root
 	    entries.append(entry)
 	log.debug('entries: %s', entries)
 
 	return header, metadata, entries
 
-def assets_entry(file_handler, entry, duplicate=False): # duplicate option added for error recovery
+def assets_entry(file_handler, entry, duplicate=False): # duplicate option added for error recovery - what did i mean by this???
 	type_id = entry['type_id']
 	if duplicate:
 		data = read_chunk(entry['offset'], entry['size'], file_handler)
@@ -117,7 +117,6 @@ def assets_entry(file_handler, entry, duplicate=False): # duplicate option added
 	node = {}
 
 	# In lieu of a switch statement
-
 	if type_id in (28, 213):
 		node['image_name'] = read_string(data)
 		align(4, data)

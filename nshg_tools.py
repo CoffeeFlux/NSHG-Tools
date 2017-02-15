@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import argparse, os
+import argparse, os, hashlib
 import logging as log
 import * from nshg
 
@@ -11,13 +11,11 @@ logging.basicConfig(level=logging.INFO) # change to warning when finished
 # Commented out for testing
 '''
 argparser = argparse.ArgumentParser(description='transform Unity assets')
-argparser.add_argument('file_type', help='type of file to act upon',
-                       choices=['assets','level'])
 argparser.add_argument('command', help='action to perform on the files',
                        choices=['header', 'metadata', 'types', 'objectinfo', 'objectids', 'fileids',
                        'entries', 'unpack', 'unpack-raw', 'repack', 'repack-raw'])
 argparser.add_argument('files', metavar='FILE', nargs='+', help='list of source files and/or directories to act upon')
-argparser.add_argument(['-d', '--dest-dir'], dest='dest_dir', default='./', help='directory containing extracted files')
+argparser.add_argument(['-d', '--dest-dir'], dest='dest_dir', default='./asset_dump', help='directory containing extracted files')
 
 args = argparser.parse_args()
 '''
@@ -33,39 +31,94 @@ args.command = 'header'
 args.files = [r'Q:\Ryan\Documents\Unity\TestProject\testproject_Data\sharedassets0.assets']
 #args.files = [r'Q:\Games\NSHG_v111\NewSuperHookGirl_Data\sharedassets0.assets']
 
-dest_dir = './'
+dest_dir = './asset_dump'
 
 # Body
 
 def process_assets_file(file_path):
-	main_file = open(file_path)
-	header, metadata, entries = parser.assets_file_info(main_file)
-	command = args.command
-	if command == 'header':
-		print('Metadata Size:', header['metadata_size'])
-		print('File Size:', header['file_size'])
-		print('Version:', header['version'])
-		print('Data Section Offset:', header['data_offset'])
-		print('Endianness:', if header['endianness'] == True then 'Big-Endian' else 'Little-Endian')
-	elif command == 'metadata':
-		print('Version:', metadata['version'])
-		print('Attributes:', metadata['attributes'])
-		print('Embedded:', metadata['embedded'])
-		print('Base Class Count:', metadata['base_class_count'])
-	elif command == 'types':
-		print(*metadata['typetree'], sep='\n')
-	elif command == 'objectinfo':
-		print(*metadata['obj_info'], sep='\n')
-	elif command == 'objectids':
-		print(*metadata['obj_ids'], sep='\n')
-	elif command == 'fileids':
-		print(*metadata['file_ids'], sep='\n')
-	elif command == 'entries':
-		print(*entries, sep='\n')
-	elif command in ('unpack', 'unpack-raw', 'repack', 'repack-raw'):
-		for entry in entries:
-			node = parser.assets_entry(main_file, entry)
-			#if command == 
+	basename = os.path.basename(file_path)
+
+	with open(file_path) as main_file:
+		header, metadata, entries = parser.assets_file_info(main_file)
+		command = args.command
+
+		if command == 'header':
+			print('Metadata Size:', header['metadata_size'])
+			print('File Size:', header['file_size'])
+			print('Version:', header['version'])
+			print('Data Section Offset:', header['data_offset'])
+			print('Endianness:', if header['endianness'] == True then 'Big-Endian' else 'Little-Endian')
+		elif command == 'metadata':
+			print('Version:', metadata['version'])
+			print('Attributes:', metadata['attributes'])
+			print('Embedded:', metadata['embedded'])
+			print('Base Class Count:', metadata['base_class_count'])
+		elif command == 'types':
+			print(*metadata['typetree'], sep='\n')
+		elif command == 'objectinfo':
+			print(*metadata['obj_info'], sep='\n')
+		elif command == 'objectids':
+			print(*metadata['obj_ids'], sep='\n')
+		elif command == 'fileids':
+			print(*metadata['file_ids'], sep='\n')
+		elif command == 'entries':
+			print(*entries, sep='\n')
+		elif command in ('unpack', 'unpack-raw', 'repack', 'repack-raw'):
+			asset_dir = dest_dir + '_' + basename
+			util.ensure_dir_exists(asset_dir)
+
+			with open(file_path + '.resS') as ress_file:
+				if command[-4:] == '-raw':
+					asset_dir = asset_dir + '/_raw'
+					util.ensure_dir_exists(asset_dir)
+
+				if command[:6] == 'unpack': # should be broken up into smaller functions
+					util.clear_dir_contents(asset_dir) # should request confirmation on this
+				
+					nodes = []
+					for entry in entries:
+						nodes.append(parser.assets_entry(main_file, entry))
+					image_nodes = [node for node in nodes if node.type_id == 28]
+
+					index = []
+
+					for node in image_nodes:
+						ress_file.seek(node['offset'])
+						image_data_raw = ress_file.read(node['size'])
+						image_name = node['image_name']
+
+						if command == 'unpack-raw':
+							image_data = image_data_raw
+							with open(os.path.join(asset_dir, image_name), 'wb') as image_file:
+								image_file.write(data)
+
+						else: # command == 'unpack'
+							image_format = node['img_format']
+
+							if image_format in (3, 5): # RGB24, ARGB32
+								image_path = os.path.join(asset_dir, image_name + '.png')
+								image_data_list = convert.raw_image_to_list(image_data_raw)
+								with open(image_path, 'wb') as image_file:
+									writer = png.Writer(node['x_res'], node['y_res'], alpha = True if image_format == 5 else False)
+									writer.write(image_file, image_data_list)
+
+							elif image_format in (10, 12): # RGB24 DXT1, ARGB32 DXT5
+								print('dxt')
+
+							# This is sloppy and lazy, but it works
+							with open(image_path, 'r') as image_file:
+								image_data = image_file.read()
+
+						data_hash = hashlib.sha256(image_data).hexdigest()
+						index.append({
+							'node': node
+							'hash': data_hash
+						})
+
+					index_handler.save_index(index, asset_dir)
+
+				else: # command[:6] == 'repack'
+					print('repack')
 
 
 def process_level_file(file_path):
@@ -74,6 +127,7 @@ def process_level_file(file_path):
 def process_file(file_path):
 	basename = os.path.basename(file_path)
 	name, extension = os.path.splitext(basename)
+
 	if extension == '.assets':
 		process_assets_file(file_path)
 	elif extension == '' and name[:5] == 'level':

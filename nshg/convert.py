@@ -18,3 +18,4 @@ def raw_image_to_list(data, x_res, y_res, alpha=False, reverse=False):
 		else:
 			output.append(row)
 	return list(output)
+

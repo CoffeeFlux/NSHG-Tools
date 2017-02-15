@@ -1,4 +1,5 @@
-import struct, io, errno
+import struct, io, errno, os
+import logging as log
 
 def format_hex(s): # yes, this is bad; i'll remove it later
 	return '0x' + format(s, '02x').upper().zfill(8)
@@ -49,9 +50,16 @@ def pad(n, file_handler):
 def get_pos(file_handler):
 	return format_hex(file_handler.tell())
 
-def ensure_path_exists(path):
+def ensure_dir_exists(path):
 	try:
 		os.makedirs(path)
 	except OSError as exception:
 		if exception.errno != errno.EEXIST:
+			log.debug('Directory at %s already exists', path)
 			raise
+
+def clear_dir_contents(folder):
+	for file in os.listdir(folder):
+		file_path = os.path.join(folder, file)
+		if os.path.isfile(file_path): # should probably do error-checking wrt file permissions
+			os.unlink(file_path)
