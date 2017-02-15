@@ -1,6 +1,9 @@
 # Temporary directory for rambling
 text_dump/
 
+# Directory for dumping extracted files
+asset_dump/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
