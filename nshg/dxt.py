@@ -135,7 +135,7 @@ def decode_bc2(data, width, height, premultiplied):
 
     return expand_clusters(clusters, True)
 
-def decode_bc3(data, width, height, premultiplied): # KNOWN BROKEN - REVERSES ALPHA VALUES PER 4 ROWS
+def decode_bc3(data, width, height, premultiplied):
     data = io.BytesIO(data)
     clusters = []
 
