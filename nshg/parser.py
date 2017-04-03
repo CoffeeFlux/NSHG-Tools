@@ -1,7 +1,7 @@
 from .util import * # in package
 import logging as log
 
-def assets_file_info(file_handler):
+def file_info(file_handler):
     f = file_handler
 
     # Header - Dict
@@ -86,10 +86,10 @@ def assets_file_info(file_handler):
     file_ids = []
     for x in range(0, metadata['file_id_count']):
         file = {}
-        file['asset_path'] = read_until_null()
+        file['asset_path'] = read_until_null(f)
         file['guid']       = read('>16B', 16, f)
         file['type']       = read_int(f)
-        file['path']       = read_until_null()
+        file['path']       = read_until_null(f)
         file_ids.append(file)
     log.debug('file id table: %s', file_ids)
     metadata['file_ids'] = file_ids

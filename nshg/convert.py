@@ -4,6 +4,7 @@ import io, collections
 def raw_image_to_list(data, x_res, y_res, alpha=False, reverse=False):
     data = io.BytesIO(data)
     output = collections.deque()
+
     for y in range(0, y_res):
         row = []
         for x in range(0, x_res):
@@ -18,4 +19,5 @@ def raw_image_to_list(data, x_res, y_res, alpha=False, reverse=False):
             output.appendleft(row)
         else:
             output.append(row)
+            
     return list(output)
